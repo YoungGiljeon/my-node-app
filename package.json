@@ -1,0 +1,16 @@
+{
+  "name": "my-node-app",
+  "version": "1.0.0",
+  "description": "CI/CD 실습용 Node.js 앱",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+     "test": "jest --passWithNoTests"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}
