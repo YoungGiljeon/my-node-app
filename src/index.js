@@ -8,15 +8,15 @@ app.use(express.json());
 // 라우트
 app.get('/', (req, res) => {
   res.json({
-    message: 'CI/CD 파이프라인 실습 앱입니다!',
-    version: '1.0.0',
+    message: 'CI/CD 파이프라인 실습 앱입니다! 2번째 실습',
+    version: '2.0.0',
     timestamp: new Date().toISOString()
   });
 });
 
 app.get('/health', (req, res) => {
   res.status(200).json({
-    status: 'healthy',
+    status: 'healthy ver2 !',
     uptime: process.uptime()
   });
 });

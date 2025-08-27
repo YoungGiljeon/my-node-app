@@ -45,4 +45,42 @@ jobs:
           ${{ secrets.DOCKER_USERNAME }}/my-node-app:latest
           ${{ secrets.DOCKER_USERNAME }}/my-node-app:${{ github.sha }}
   
- 
+  # AWS ECS에 배포하는 파이프라인(2번쨰 실습때 활용, 첫번째 실습시 삭제)
+  deploy-to-ecs:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: AWS 자격 증명 구성
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
+    
+    - name: ECS 태스크 정의 업데이트 
+      run: |
+        aws ecs register-task-definition \
+          --family my-node-app-task \
+          --requires-compatibilities FARGATE \
+          --network-mode awsvpc \
+          --cpu 256 --memory 512 \
+          --container-definitions '[{
+            "name":"my-node-app",
+            "image":"${{ secrets.DOCKER_USERNAME }}/my-node-app:${{ github.sha }}",
+            "portMappings":[{"containerPort":3000}],
+            "essential":true
+          }]'
+
+    - name: ECS 서비스 업데이트
+      run: |
+        aws ecs update-service \
+          --cluster my-app-cluster \
+          --service my-node-app-service \
+          --force-new-deployment
+    
+    - name: 배포 대기
+      run: |
+        aws ecs wait services-stable \
+          --cluster my-app-cluster \
+          --services my-node-app-service
